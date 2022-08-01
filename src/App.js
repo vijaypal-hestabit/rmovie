@@ -6,7 +6,7 @@ import './css/movielist.css';
 import MovieCard from './Components/MovieCard';
 import React, { useEffect, useState } from 'react';
 import ReactPaginate from 'react-paginate';
-
+import { Spinner } from 'reactstrap';
 
 function App() {
     const [movies, setMovies] = useState([]);
@@ -15,14 +15,21 @@ function App() {
     // pagination
     const [current_page, setCurrentPage] = useState(1)
     const [total_page, setTotalPage] = useState(0)
+
+    // filter
     const [year, setYear] = useState(2022)
     const [language, setLanguage] = useState('en')
 
+    // loader
+    const [IsLoading, setIsLoading] = useState(true);
+
+    // api building
     const base_API_URL = 'https://api.themoviedb.org/3/'
     const discover = 'discover'
     const API_KEY = 'df66830aefe6dae29343993ebfe45c4c';
 
-    const fetchMovies = async (search_movie) => {
+    // api call
+    const fetchMovies = async () => {
         console.log('current page value from api', current_page)
         let type = (search_movie) ? 'search' : discover;
 
@@ -41,40 +48,57 @@ function App() {
         let { results } = result.data
         setMovies(results)
         setTotalPage(result.data.total_pages)
+        setIsLoading(false)
     }
 
-    useEffect(() => {
-        fetchMovies()
-    }, []);
-
-
+    // search handle
     const searchMovie = (e) => {
         let search_name = e.target.value.trim()
 
         if (search_name.length >= 3) {
             setSearctMovie(search_name)
-            fetchMovies(search_name)
-        } else if(search_name.length == 0){
-            setSearctMovie('')
+        } else {
+            setSearctMovie()
+            fetchMovies()
         }
     }
     useEffect(() => {
         fetchMovies()
-    }, [search_movie]);
+
+    }, [search_movie])
 
     // handle pagination
-
     function handlePageClick({ selected: selectedPage }) {
-        // debugger;
         let current_page_value = selectedPage + 1
-        console.log('current page from set function ', current_page_value)
         setCurrentPage(current_page_value);
-        
-        console.log('current page', current_page)
-        fetchMovies()
     }
-    // useEffect(()=>{
-    // },[current_page])
+    useEffect(() => {
+        fetchMovies()
+    }, [current_page])
+
+
+    // set year filter
+    let yearFilter = (e) => {
+        setYear(e.target.value)
+    }
+    useEffect(() => {
+        fetchMovies()
+    }, [year])
+
+    let language_api = 'https://api.themoviedb.org/3/configuration/languages?api_key=df66830aefe6dae29343993ebfe45c4c';
+    // set language filter
+    const getLanguageFromApi = async () => {
+        let all_language = await axios(`${language_api}`)
+        console.log(all_language)
+    }
+
+    getLanguageFromApi()
+    let languageFilter = (e) => {
+        setLanguage(e.target.value)
+    }
+    useEffect(() => {
+        fetchMovies()
+    }, [language])
 
 
     return (
@@ -92,7 +116,7 @@ function App() {
                 <h2 className=''>Filter</h2>
                 <div className='d-flex'>
                     <div className='col-sm-6'>
-                        <select className='form-control' onChange={(e)=>{setYear(e.target.value); fetchMovies()}}>
+                        <select className='form-control' onChange={yearFilter}>
                             <option selected="true" disabled>Select Year</option>
                             <option value="2022">2022</option>
                             <option value="2021">2021</option>
@@ -100,7 +124,7 @@ function App() {
                         </select>
                     </div>
                     <div className='col-sm-6'>
-                        <select className='form-control' onChange={(e)=>{setLanguage(e.target.value); fetchMovies()}}>
+                        <select className='form-control' onChange={languageFilter}>
                             <option selected="true" disabled>Select Language</option>
                             <option value="en">English</option>
                             <option value="hi">Hindi</option>
@@ -109,6 +133,12 @@ function App() {
                     </div>
                 </div>
             </div>
+            {
+                IsLoading &&
+                <div className="loader">
+                    <Spinner color="white" />
+                </div>
+            }
             {
                 movies.map(movies_item =>
                     <MovieCard key={movies_item.id} movie={movies_item} />

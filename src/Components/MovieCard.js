@@ -1,11 +1,12 @@
 import React from "react";
 
+
 const MovieCard = ({ movie }) => {
     return (
         <>
             <figure className="movie">
                 <div className="movie__hero">
-                    <img src={`https://image.tmdb.org/t/p/w500/${movie.poster_path} `} alt="Rambo" className="movie__img" />
+                    <img src={(movie.poster_path)?`https://image.tmdb.org/t/p/w500/${movie.poster_path}`:`./rmovie/src/logo.svg`} alt="Rambo" className="movie__img" />
                 </div>
                 <div className="movie__content">
                     <div className="movie__title">

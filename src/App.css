@@ -53,6 +53,21 @@
   border: 1px solid rgb(198, 197, 202);
 }
 
+.loader {
+  height: 100vh;
+  width: 100%;
+  background: rgba(0,0,0,0.5);
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 10;
+}
+.loader .spinner-border {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
